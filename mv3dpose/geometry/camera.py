@@ -3,14 +3,49 @@
 """
 import numpy as np
 import cv2
+import json
 
 class Camera:
+
+    @staticmethod
+    def load_from_file(fname):
+        with open(fname, "r") as f:
+            data = json.load(f)
+        
+        if "P" in data:
+            P = data['P']
+            w = data['w']
+            h = data['h']
+            cid = data['cid']
+            cam = AffineCamera(P, w, h)
+            return cam
+        elif "K" in data:
+            K = data['K']
+            rvec = data['rvec']
+            tvec = data['tvec']
+            distCoef = data['distCoef']
+            w = data['w']
+            h = data['h']
+            cam = ProjectiveCamera(K, rvec, tvec, distCoef, w, h)
+            return cam
+        else:
+            raise NotImplementedError
 
     def __init__(self, P, w, h, cid=-1):
         self.P = P
         self.w = w
         self.h = h
         self.cid = cid
+    
+    def to_file(self, fname):
+        data = {
+            "P": self.P,
+            "w": self.w,
+            "h": self.h,
+            'cid': self.cid
+        }
+        with open(fname, 'w') as f:
+            js = json.dump(data, f)
     
     def undistort(self, im):
         """ undistorts the image
@@ -98,6 +133,18 @@ class ProjectiveCamera(Camera):
         self.distCoef = distCoef
         P = gm.get_projection_matrix(K_new, rvec, tvec)
         Camera.__init__(self, P, w, h)
+    
+    def to_file(self, fname):
+        data = {
+            "K": self.K,
+            "rvec": self.rvec,
+            "tvec": self.tvec,
+            'discCoef': self.distCoef,
+            'w': self.w,
+            'h': self.h
+        }
+        with open(fname, 'w') as f:
+            js = json.dump(data, f)
 
     def get_C(self):
         """
