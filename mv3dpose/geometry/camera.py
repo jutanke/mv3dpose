@@ -15,17 +15,16 @@ class Camera:
             data = json.load(f)
         
         if "P" in data:
-            P = data['P']
+            P = np.array(data['P'])
             w = data['w']
             h = data['h']
-            cid = data['cid']
             cam = AffineCamera(P, w, h)
             return cam
         elif "K" in data:
-            K = data['K']
-            rvec = data['rvec']
-            tvec = data['tvec']
-            distCoef = data['distCoef']
+            K = np.array(data['K'])
+            rvec = np.array(data['rvec'])
+            tvec = np.array(data['tvec'])
+            distCoef = np.array(data['distCoef'])
             w = data['w']
             h = data['h']
             cam = ProjectiveCamera(K, rvec, tvec, distCoef, w, h)
@@ -41,13 +40,13 @@ class Camera:
     
     def to_file(self, fname):
         data = {
-            "P": self.P,
+            "P": self.P.tolist(),
             "w": self.w,
             "h": self.h,
             'cid': self.cid
         }
         with open(fname, 'w') as f:
-            js = json.dump(data, f)
+            json.dump(data, f)
     
     def undistort(self, im):
         """ undistorts the image
@@ -138,15 +137,15 @@ class ProjectiveCamera(Camera):
     
     def to_file(self, fname):
         data = {
-            "K": self.K,
-            "rvec": self.rvec,
-            "tvec": self.tvec,
-            'discCoef': self.distCoef,
+            "K": self.K.tolist(),
+            "rvec": self.rvec.tolist(),
+            "tvec": self.tvec.tolist(),
+            'discCoef': self.distCoef.tolist(),
             'w': self.w,
             'h': self.h
         }
         with open(fname, 'w') as f:
-            js = json.dump(data, f)
+            json.dump(data, f)
 
     def get_C(self):
         """
