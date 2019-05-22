@@ -21,11 +21,11 @@ data_root = join(root, 'pak')
 scale_to_mm = 1000
 
 # ~~~~~ KTH2 Football ~~~~~
-get = kth.get
-valid_frames = list(range(0, 214))
-output_dir = './../output/kth2'
-data_root = root
-scale_to_mm = 1000
+# get = kth.get
+# valid_frames = list(range(0, 214))
+# output_dir = './../output/kth2'
+# data_root = root
+# scale_to_mm = 1000
 # ~~~~~~~~~~~~~~~~~
 
 
@@ -70,7 +70,8 @@ for t in tqdm(valid_frames):
 
 dataset_data = {
     'n_cameras': n_cameras,
-    'scale_to_mm': scale_to_mm
+    'scale_to_mm': scale_to_mm,
+    'valid_frames': valid_frames
 }
 
 
