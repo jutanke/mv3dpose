@@ -24,6 +24,28 @@ def get_projection_matrix(K, rvec, tvec):
     return K @ Rt
 
 
+def from_homogeneous(x):
+    """
+    convert from homogeneous coordinate
+    :param x:
+    :return:
+    """
+    if not isinstance(x, np.ndarray):
+        x = np.array(x)
+    if len(x.shape) == 1:
+        h = x[-1]
+        if h != 0:
+            x = x/h
+            return x[0:-1]
+        else:
+            return None
+    else:
+        assert len(x.shape) == 2
+        h = np.expand_dims(x[:, -1], axis=1)
+        x = x / h
+        return x[:, 0:-1]
+
+
 def reproject_points_to_2d(pts3d, rvec, tvec, K, w, h,
                            distCoef = np.zeros((5, 1)),binary_mask=False):
     """
