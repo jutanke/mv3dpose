@@ -1,5 +1,6 @@
 import sys
 sys.path.insert(0, '../')
+from mv3dpose.data.openpose import OpenPoseKeypoints, MultiOpenPoseKeypoints
 from mv3dpose.tracking import tracking, Track
 from os.path import isdir, join
 from os import listdir
