@@ -4,6 +4,8 @@
 import numpy as np
 import cv2
 import json
+import mv3dpose.geometry.geometry as gm
+
 
 class Camera:
 
@@ -61,7 +63,7 @@ class Camera:
         """
         return points2d
     
-        def projectPoints_undist(self, points3d):
+    def projectPoints_undist(self, points3d):
         """
             projects 3d points into 2d ones with
             no distortion
