@@ -2,6 +2,7 @@ import numpy as np
 from mv3dpose.baseline import estimate, distance_between_poses
 from scipy.optimize import linear_sum_assignment
 from scipy.ndimage.filters import gaussian_filter1d
+import json
 
 
 def tracking(calib_per_frame, poses_per_frame,
@@ -254,6 +255,31 @@ class Track:
             first = self.frames[0]
             last = self.frames[-1]
             return last - first + 1
+
+    def to_file(self, fname):
+
+        poses = []
+        for p in self.poses:
+            if isinstance(p, np.ndarray):
+                poses.append(p.tolist())
+            elif isinstance(p, list):
+                pose = []
+                for joint in p:
+                    if isinstance(joint, np.ndarray):
+                        joint = joint.tolist()
+                    pose.append(joint)
+                poses.append(pose)
+            else:
+                raise Exception('Type is not a list:' + str(type(p)))
+
+        data = {
+            "J": self.J,
+            "frames": self.frames,
+            "poses": poses,
+            'z_axis': self.z_axis
+        }
+        with open(fname, 'w') as f:
+            json.dump(data, f)
 
     def last_seen(self):
         return self.frames[-1]

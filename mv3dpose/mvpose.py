@@ -4,13 +4,15 @@ from mv3dpose.data.openpose import OpenPoseKeypoints, MultiOpenPoseKeypoints
 from mv3dpose.tracking import tracking, Track
 import mv3dpose.geometry.camera as camera
 from os.path import isdir, join, isfile
+from os import makedirs
 from tqdm import tqdm
 from os import listdir
 from time import time
 import json
+import shutil
 
 dataset_dir = '/home/user/dataset'
-output_dir = join(dataset_dir, 'poses3d')
+output_dir = join(dataset_dir, 'tracks3d')
 dataset_json = join(dataset_dir, 'dataset.json')
 
 vid_dir = join(dataset_dir, 'videos')
@@ -19,6 +21,12 @@ kyp_dir = join(dataset_dir, 'poses')
 
 assert isdir(vid_dir)
 assert isdir(cam_dir)
+
+if isdir(output_dir):
+    print('\n[deleting existing output directory...]')
+    shutil.rmtree(output_dir)
+
+makedirs(output_dir)
 
 # ~~~~~~~~~~~~~~~~~~~~~~
 
@@ -127,3 +135,12 @@ if do_smoothing:
                                 sigma=smoothing_sigma,
                                 interpolation_range=smoothing_interpolation_range)
         tracks_.append(track)
+    tracks = tracks_
+
+# ~~~~~~~~~~~~~~~~~
+# S E R I A L I Z E
+# ~~~~~~~~~~~~~~~~~
+print('\n[serialize 3d tracks]')
+for tid, track in tqdm(enumerate(tracks)):
+    fname = join(output_dir, 'track' + str(tid) + '.json')
+    track.to_file(fname)
