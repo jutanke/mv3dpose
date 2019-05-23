@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 
+echo ""
+echo ""
 echo "execute mvpose on $1"
+echo ""
+echo ""
 
 VID_DIR="$1/videos"
 CAM_DIR="$1/cameras"
 POSE_DIR="$1/poses"
 OPENPOSE_DIR="$PWD/openpose"
-
-echo "$OPENPOSE_DIR"
 
 if [ ! -d "$VID_DIR" ]; then
   echo "video directory $VID_DIR does not exist!"
