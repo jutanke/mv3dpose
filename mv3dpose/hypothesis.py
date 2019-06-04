@@ -6,8 +6,9 @@ from mv3dpose.geometry.stereo import get_fundamental_matrix
 
 
 def get_single_human3d(humans3d):
-    human3d = [None] * 18  # single 3d person
-    for jid in range(18):
+    J = len(humans3d[0])
+    human3d = [None] * J  # single 3d person
+    for jid in range(J):
         pts3d = []
         for person3d in humans3d:
             if person3d[jid] is not None:
@@ -67,13 +68,15 @@ def calculate_cost(cam1, person1, cam2, person2):
     :return:
     """
     F = get_fundamental_matrix(cam1.P, cam2.P)
+    J = len(person1)
+    assert J == len(person2)
 
     # drop all points that are -1 -1 (not visible)
     pts1 = []
     pts2 = []
     weights1 = []
     weights2 = []
-    for jid in range(18):
+    for jid in range(J):
         x1, y1, w1 = person1[jid]
         x2, y2, w2 = person2[jid]
         if x1 >= 0 and x2 >= 0:
@@ -121,7 +124,7 @@ class Hypothesis:
                  distance_threshold,
                  debug_2d_id=None):
         """
-        :param pts: [ (x, y, w), ... ] x18
+        :param pts: [ (x, y, w), ... ] * J
         :param cam: ProjectiveCamera
         :param threshold: if cost is larger then this
             value then the 'other' must not be merged
@@ -219,7 +222,7 @@ class Hypothesis:
 
     def calculate_cost(self, o_points, o_cam):
         """
-        :param o_points: other points x18
+        :param o_points: other points * J
         :param o_cam: other camera
         :return:
         """
@@ -278,7 +281,8 @@ class HypothesisList:
 
 def get_believe(points2d):
     believe = []
-    for jid in range(18):
+    J = len(points2d)
+    for jid in range(J):
         w = points2d[jid, 2]
         if w >= 0:
             believe.append(w)
@@ -293,8 +297,8 @@ class Person2d:
         :param person: {Person2d}
         :return:
         """
-        left  = [5, 6, 7, 11, 12, 13, 15, 17]
-        right = [2, 3, 4,  8,  9, 10, 14, 16]
+        left  = [5, 6, 7, 11, 12, 13, 15, 17, 18, 19, 20]
+        right = [2, 3, 4,  8,  9, 10, 14, 16, 21, 22, 23]
         lr = left + right
         rl = right + left
 
@@ -333,6 +337,9 @@ class Person2d:
                 self.points2d[jid] = points2d_undist[idx]
             # ~~~~~~~~~~~~~~~~~~~~
 
+    def __len__(self):
+        return 24
+
     def triangulate(self, other):
         """
         :param other: {Person2d}
@@ -344,7 +351,11 @@ class Person2d:
         W1 = []
         W2 = []
 
-        for jid in range(18):
+        J = len(other)
+        assert J == len(self.points2d)
+        assert J == len(self)
+
+        for jid in range(J):
             if self.points2d[jid, 2] > 0 and \
                     other.points2d[jid, 2] > 0:
                 Pts1.append(self.points2d[jid, 0:2])
@@ -356,8 +367,8 @@ class Person2d:
         Pts1 = np.transpose(Pts1)
         Pts2 = np.transpose(Pts2)
 
-        Points3d = [None] * 18
-        w = [-1] * 18
+        Points3d = [None] * J
+        w = [-1] * J
         if len(Pts1) > 0:
             Pts3d = gm.from_homogeneous(
                 np.transpose(cv2.triangulatePoints(

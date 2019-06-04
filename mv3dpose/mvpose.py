@@ -4,9 +4,8 @@ from mv3dpose.data.openpose import OpenPoseKeypoints, MultiOpenPoseKeypoints
 from mv3dpose.tracking import tracking, Track
 import mv3dpose.geometry.camera as camera
 from os.path import isdir, join, isfile
-from os import makedirs
+from os import makedirs, listdir
 from tqdm import tqdm
-from os import listdir
 from time import time
 import json
 import shutil

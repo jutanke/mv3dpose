@@ -49,14 +49,19 @@ class OpenPoseKeypoints:
             (5, 5), (6, 6), (7, 7),
             (8, 9), (9, 10), (10, 11),
             (11, 12), (12, 13), (13, 14),
-            (14, 15), (15, 16), (16, 17), (17, 18)
+            (14, 15), (15, 16), (16, 17), (17, 18),
+            (18, 19), (19, 20), (20, 21),
+            (21, 22), (22, 23), (23, 24)
         ])
+
+        # J = 18
+        J = 24
 
         results = []
         for person in kp['people']:
             OUR = ours_vs_openpose[:, 0]
             OP = ours_vs_openpose[:, 1]
-            our_person = np.empty((18, 3), np.float32)
+            our_person = np.empty((J, 3), np.float32)
             kps = np.reshape(person['pose_keypoints_2d'], (-1, 3))
             our_person[OUR] = kps[OP]
 

@@ -94,5 +94,6 @@ RUN conda install -y numpy \
 
 RUN conda install -y -c menpo opencv3 && conda update conda && conda update --all
 
-RUN echo "0.0.1"
+RUN echo "0.0.2"
 COPY exec.sh /exec.sh
+COPY exec_vis.sh /exec_vis.sh
