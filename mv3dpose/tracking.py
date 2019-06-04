@@ -112,6 +112,7 @@ def tracking(calib_per_frame, poses_per_frame,
                 all_tracks.append(track)
 
     surviving_tracks = []
+
     for track in all_tracks:
         if len(track) >= min_track_length:
             surviving_tracks.append(track)

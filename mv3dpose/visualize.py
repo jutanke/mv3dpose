@@ -100,11 +100,15 @@ LIMBS = [
 makedirs(output_dir)
 
 
+def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
+    return abs(a-b) <= max(rel_tol * max(abs(a), abs(b)), abs_tol)
+
+
 for i, frame in tqdm(enumerate(valid_frames)):
 
     fig = plt.figure(figsize=(16, 12))
-    H = 2
-    W = int(math.ceil(n_cameras / 2.))
+    H = 2 if n_cameras < 8 else 3
+    W = int(math.ceil(n_cameras / H))
     fname = join(output_dir, 'frame%09d.png' % i)
 
     tracks_on_frame = tracks_by_frame[frame]
@@ -135,7 +139,12 @@ for i, frame in tqdm(enumerate(valid_frames)):
                 if pose3d[jid] is None:
                     pose3d[jid] = [0, 0, 0]
                     mask[jid] = False
-                pose3d = np.array(pose3d)
+                else:
+                    mm = np.mean(pose3d[jid])
+                    if isclose(0., mm):
+                        mask[jid] = False
+
+            pose3d = np.array(pose3d, dtype=np.float32)
 
             pose2d = cam.projectPoints(pose3d)
             for jid in range(24):

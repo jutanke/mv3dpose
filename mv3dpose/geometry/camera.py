@@ -140,7 +140,7 @@ class ProjectiveCamera(Camera):
             "K": self.K.tolist(),
             "rvec": self.rvec.tolist(),
             "tvec": self.tvec.tolist(),
-            'discCoef': self.distCoef.tolist(),
+            'distCoef': self.distCoef.tolist(),
             'w': self.w,
             'h': self.h
         }
