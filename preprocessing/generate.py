@@ -10,22 +10,22 @@ import numpy as np
 from tqdm import tqdm
 import json
 
-root = "/media/tanke/Data2/datasets"
+root = "/home/tanke/Data/datasets"
 assert isdir(root)
 
 # ~~~~~ SHELF ~~~~~
-get = shelf.get
-valid_frames = list(range(300, 600))
-output_dir = './../output/shelf'
-data_root = join(root, 'pak')
-scale_to_mm = 1000
+# get = shelf.get
+# valid_frames = list(range(300, 600))
+# output_dir = './../output/shelf'
+# data_root = join(root, 'pak')
+# scale_to_mm = 1000
 
 # ~~~~~ KTH2 Football ~~~~~
-# get = kth.get
-# valid_frames = list(range(0, 214))
-# output_dir = './../output/kth2'
-# data_root = root
-# scale_to_mm = 1000
+get = kth.get
+valid_frames = list(range(0, 214))
+output_dir = './../output/kth2'
+data_root = root
+scale_to_mm = 1000
 # ~~~~~~~~~~~~~~~~~
 
 

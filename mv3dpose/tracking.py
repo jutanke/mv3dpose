@@ -235,6 +235,27 @@ class Track:
 
         return new_track
 
+    @staticmethod
+    def from_file(fname):
+        """ load from file
+        :param fname:
+        :return:
+        """
+        track_as_json = json.load(open(fname))
+        frames = track_as_json['frames']
+        poses = track_as_json['poses']
+
+        last_seen_delay = 99
+        z_axis = 0
+        frame0 = frames.pop(0)
+        pose0 = poses.pop(0)
+
+        track = Track(frame0, pose0, last_seen_delay, z_axis)
+        for t, pose in zip(frames, poses):
+            track.add_pose(t, pose)
+
+        return track
+
     def __init__(self, t, pose, last_seen_delay, z_axis):
         """
         :param t: {int} time
