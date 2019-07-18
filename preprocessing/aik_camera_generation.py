@@ -6,16 +6,19 @@ import numpy as np
 import shutil
 import json
 import mv3dpose.geometry.camera as camera
+from tqdm import tqdm
 
-nframes = 300
+assert False, "fix nframes"
+nframes = 35834
 w = 1280
 h = 720
-cdir = '/media/tanke/Data3/datasets/action_in_kitchen/190502'
+n_cameras = 12
+cdir = '/home/tanke/Data/datasets/actions_in_kitchens/190502'
 assert isdir(cdir), cdir
 
-outdir = '/media/tanke/Data3/mv3dpose/aic_demo/cameras'
+outdir = '/home/tanke/Data/datasets/actions_in_kitchens/subsampled_for_annotation/190502ss/cameras'
 
-for cid in range(12):
+for cid in range(n_cameras):
     ex_cam = join(cdir, 'cam_ex%02d.txt' % cid)
     in_cam = join(cdir, 'cam_in%02d.txt' % cid)
     assert isfile(ex_cam) and isfile(in_cam)
@@ -44,8 +47,8 @@ for cid in range(12):
     #     "w": w,
     #     "h": h
     # }
-
-    for i in range(1, nframes + 1):
+    print(str(cid+1) + '/' + str(n_cameras))
+    for i in tqdm(range(1, nframes + 1)):
         fname = join(camdir, 'frame%09d.json' % i)
         cam.to_file(fname)
         # with open(fname, 'w') as f:
