@@ -2,6 +2,7 @@ import sys
 sys.path.insert(0, '../')
 import preprocessing.shelf as shelf
 import preprocessing.kth2_football as kth
+import preprocessing.umpm as umpm
 from os.path import isdir, join
 from os import makedirs
 import shutil
@@ -21,13 +22,20 @@ assert isdir(root)
 # scale_to_mm = 1000
 
 # ~~~~~ KTH2 Football ~~~~~
-get = kth.get
-valid_frames = list(range(0, 214))
-output_dir = './../output/kth2'
-data_root = root
-scale_to_mm = 1000
+# get = kth.get
+# valid_frames = list(range(0, 214))
+# output_dir = './../output/kth2'
+# data_root = root
+# scale_to_mm = 1000
 # ~~~~~~~~~~~~~~~~~
 
+# ~~~~~ KTH2 Football ~~~~~
+get = umpm.get
+valid_frames = list(range(0, 1000, 2))
+output_dir = './../output/umpm'
+data_root = root
+scale_to_mm = 1
+# ~~~~~~~~~~~~~~~~~
 
 if isdir(output_dir):
     shutil.rmtree(output_dir)

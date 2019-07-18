@@ -141,6 +141,12 @@ def proper_pcp_calc(Y, Humans):
     U_Legs = []
     GTIDs = []
 
+    if isinstance(Y, np.ndarray):
+        if len(Y.shape) == 4:  # 1, N_PPL, J, 3
+            # hack to work for UMPM
+            assert Y.shape[0] == 1
+            Y = Y[0]
+
     for gtid, gt in enumerate(Y):
         if gt is None:
             continue

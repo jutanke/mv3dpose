@@ -1,5 +1,4 @@
 import numpy as np
-import numpy.linalg as la
 import cv2
 from os import makedirs
 from os.path import join, isdir, isfile
