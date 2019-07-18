@@ -98,3 +98,4 @@ RUN echo "0.0.2"
 COPY exec.sh /exec.sh
 COPY exec_vis.sh /exec_vis.sh
 COPY exec_eval.sh /exec_eval.sh
+COPY exec_test_perms.sh /exec_test_perms.sh
