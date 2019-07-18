@@ -3,6 +3,22 @@ Off-the-shelf Multiple Person Multiple View 3D Pose Estimation.
 
 ![out](https://user-images.githubusercontent.com/831215/58240723-db7e0880-7d4b-11e9-955d-24ac7e0f44c4.gif)
 
+## Abstract
+In this work we propose an approach for estimating 3D human poses of multiple people
+from a set of calibrated cameras. Estimating 3D human poses from 
+multiple views has several compelling properties: human poses are estimated within a 
+global coordinate space and 
+multiple cameras provide an extended field of view which helps in resolving
+ambiguities, occlusions and motion blurs.
+Our approach builds upon a real-time 2D multi-person pose estimation system and
+greedily solves the association problem between multiple views.
+We utilize
+bipartite matching to track multiple people over multiple frames.
+This proofs to be especially efficient as problems associated with greedy matching
+such as occlusion can be easily resolved in 3D.
+Our approach achieves state-of-the-art results on popular benchmarks and may
+serve as a baseline for future work.
+
 ## Install
 
 This project requires [nvidia-docker](https://github.com/NVIDIA/nvidia-docker) and drivers that support cuda 10.
