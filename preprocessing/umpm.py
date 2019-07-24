@@ -42,7 +42,7 @@ def transform2kth(Y):
     a2kth = np.array([13, 11, 9, 10, 12, 14,
                       5, 4, 3, 6, 7, 8,
                       1, 2])  # first person -> kth
-    b2kth = np.array([24, 26, 28, 25, 27, 29,
+    b2kth = np.array([28, 26, 24, 25, 27, 29,
                       20, 19, 18, 21, 22, 23,
                       16, 17])  # second person -> kth
 
