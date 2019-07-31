@@ -60,7 +60,23 @@ def get_cmap(n, name='hsv'):
 
 # colors = get_cmap(len(tracks))
 n_tracks = len(tracks)
-colors = np.random.random(size=(n_tracks, 1, 3))
+if n_tracks > 11:
+    colors = np.random.random(size=(n_tracks, 1, 3))
+else:
+    colors = [
+            'aqua',     # 0
+            'magenta',  # 1
+            'green',    # 2
+            'yellow',   # 3
+            'red',      # 4
+            'orange',   # 5
+            'white',    # 6
+            'hotpink',  # 7
+            'blue',     # 8
+            'lime',     # 9
+            'peru'      # 10
+        ][:n_tracks]
+
 
 # ~~~~~~~~~~~~~
 # C A M E R A S
@@ -156,7 +172,10 @@ for i, frame in tqdm(enumerate(valid_frames)):
                 if mask[a] and mask[b]:
                     x1, y1 = pose2d[a]
                     x2, y2 = pose2d[b]
-                    ax.plot([x1, x2], [y1, y2], c=np.squeeze(color))
+                    if n_tracks > 11:
+                        ax.plot([x1, x2], [y1, y2], c=np.squeeze(color))
+                    else:
+                        ax.plot([x1, x2], [y1, y2], c=color)
 
     plt.tight_layout()
     plt.savefig(fname)
