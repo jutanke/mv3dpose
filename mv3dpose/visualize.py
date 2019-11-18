@@ -9,6 +9,7 @@ from os.path import isdir, join, isfile
 from os import listdir, makedirs
 import mv3dpose.geometry.camera as camera
 import shutil
+from mpl_toolkits.mplot3d import Axes3D
 from tqdm import tqdm
 import math
 
@@ -33,7 +34,7 @@ valid_frames = Settings['valid_frames']
 print('CAMERAS', n_cameras)
 print("#frames", len(valid_frames))
 
-tracks = [json.load(open(join(trk_dir, f))) for f in listdir(trk_dir)]
+tracks = [json.load(open(join(trk_dir, f))) for f in sorted(listdir(trk_dir))]
 print("#tracks", len(tracks))
 
 
@@ -64,15 +65,15 @@ if n_tracks > 11:
     colors = np.random.random(size=(n_tracks, 1, 3))
 else:
     colors = [
-            'aqua',     # 0
-            'magenta',  # 1
+            'red',     # 0
+            'blue',  # 1
             'green',    # 2
             'yellow',   # 3
-            'red',      # 4
-            'orange',   # 5
+            'green',      # 4
+            'blue',   # 5
             'white',    # 6
             'hotpink',  # 7
-            'blue',     # 8
+            'magenta',     # 8
             'lime',     # 9
             'peru'      # 10
         ][:n_tracks]
@@ -176,6 +177,47 @@ for i, frame in tqdm(enumerate(valid_frames)):
                         ax.plot([x1, x2], [y1, y2], c=np.squeeze(color))
                     else:
                         ax.plot([x1, x2], [y1, y2], c=color)
+
+    # 3D plot ================
+    ax = fig.add_subplot(H, W, n_cameras + 1, projection='3d')
+    # ax.axis('off')
+    ax.set_xlim([-0.5, 1.5])
+    ax.set_ylim([-1, 1])
+    ax.set_zlim([0, 2])
+
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+
+    for tid in tracks_on_frame:
+        color = colors[tid]
+        pose3d = pose_by_track_and_frame[tid, frame]
+
+        mask = [True] * 24
+        for jid in range(24):
+            if pose3d[jid] is None:
+                mask[jid] = False
+            else:
+                x, y, z = pose3d[jid]
+                if np.isclose(x, .0) and np.isclose(y, .0) and np.isclose(z, .0):
+                    mask[jid] = False
+                else:
+                    ax.scatter(x, y, z, c=color)
+
+        for a, b in LIMBS:
+            if mask[a] and mask[b]:
+                x1, y1, z1 = pose3d[a]
+                x2, y2, z2 = pose3d[b]
+                if n_tracks > 11:
+                    ax.plot([x1, x2], [y1, y2], [z1, z2], c=np.squeeze(color), linewidth=4)
+                else:
+                    ax.plot([x1, x2], [y1, y2], [z1, z2], c=color, linewidth=4)
+
+        # for jid in range(24):
+        #     if mask[jid]:
+        #         x, y = pose2d[jid]
+        #         ax.scatter(x, y, c=color)
+
+    # ============= (end) 3D plot
 
     plt.tight_layout()
     plt.savefig(fname)
