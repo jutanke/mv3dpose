@@ -8,6 +8,7 @@ from os import makedirs, listdir
 from tqdm import tqdm
 from time import time
 import json
+import numpy as np
 import shutil
 
 dataset_dir = '/home/user/dataset'
@@ -76,7 +77,7 @@ print('\n[load keypoints]')
 keypoints = []
 for cid in tqdm(range(n_cameras)):
     loc = join(kyp_dir, 'camera%02d' % cid)
-    assert isdir(loc)
+    assert isdir(loc), loc
     pe = OpenPoseKeypoints('frame%09d', loc)
     keypoints.append(pe)
 pe = MultiOpenPoseKeypoints(keypoints)
@@ -86,16 +87,74 @@ pe = MultiOpenPoseKeypoints(keypoints)
 # ~~~~~~~~~~~~~
 print('\n[load cameras]')
 Calib = []  # { n_frames x n_cameras }
-for t in tqdm(valid_frames):
-    calib = []
-    Calib.append(calib)
-    for cid in range(n_cameras):
-        local_camdir = join(cam_dir, 'camera%02d' % cid)
-        assert isdir(local_camdir)
-        cam_fname = join(local_camdir, 'frame%09d.json' % t)
-        assert isfile(cam_fname), cam_fname
-        cam = camera.Camera.load_from_file(cam_fname)
-        calib.append(cam)
+try:
+    for t in tqdm(valid_frames):
+        calib = []
+        Calib.append(calib)
+        for cid in range(n_cameras):
+            local_camdir = join(cam_dir, 'camera%02d' % cid)
+            assert isdir(local_camdir)
+            cam_fname = join(local_camdir, 'frame%09d.json' % t)
+            assert isfile(cam_fname), cam_fname
+            cam = camera.Camera.load_from_file(cam_fname)
+            calib.append(cam)
+except AssertionError:
+    print('\tnew version of cameras is used...')
+
+    class CamerasPerFrame:
+
+        def __init__(self, cam_dir, n_cameras, valid_frames):
+            self.n_cameras = n_cameras
+            self.n_frames = len(valid_frames)
+            self.first_frame = valid_frames[0]
+            self.cameras = []
+            for cid in range(n_cameras):
+                camfile = join(cam_dir, 'camera%02d.json' % cid)
+                with open(camfile, 'r') as f:
+                    cam_as_dict_list = json.load(f)
+
+                cam_as_object_list = []
+                for cam in cam_as_dict_list:
+                    start_frame = cam['start_frame']
+                    end_frame = cam['end_frame']
+                    K = np.array(cam['K'])
+                    rvec = np.array(cam['rvec'])
+                    tvec = np.array(cam['tvec'])
+                    distCoef = np.array(cam['distCoef'])
+                    w = int(cam['w'])
+                    h = int(cam['h'])
+                    cam = camera.ProjectiveCamera(K, rvec, tvec, distCoef, w, h)
+
+                    cam_as_object_list.append({
+                        "start_frame": start_frame,
+                        "end_frame": end_frame,
+                        "cam": cam
+                    })
+
+                self.cameras.append(cam_as_object_list)
+
+        def __getitem__(self, frame):
+            """
+            :param frame: frame, starting at 0!
+            """
+            frame += self.first_frame
+
+            cameras = [1] * self.n_cameras
+            for cid, cam_as_object_list in enumerate(self.cameras):
+                for cam in cam_as_object_list:
+                    start_frame = cam['start_frame']
+                    end_frame = cam['end_frame']
+                    if start_frame <= frame <= end_frame:
+                        cameras[cid] = cam['cam']
+                        break
+            for cam in cameras:
+                assert cam != 1
+            return cameras
+
+        def __len__(self):
+            return self.n_frames
+
+    Calib = CamerasPerFrame(cam_dir, n_cameras, valid_frames)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~
 # L O A D  2 D  P O S E S
@@ -143,3 +202,4 @@ print('\n[serialize 3d tracks]')
 for tid, track in tqdm(enumerate(tracks)):
     fname = join(output_dir, 'track' + str(tid) + '.json')
     track.to_file(fname)
+
