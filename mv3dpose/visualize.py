@@ -30,6 +30,9 @@ Settings = json.load(open(dataset_json))
 
 n_cameras = Settings['n_cameras']
 valid_frames = Settings['valid_frames']
+img_file_type = 'png'
+if 'image_extension' in Settings:
+    img_file_type = Settings['image_extension']
 
 print('CAMERAS', n_cameras)
 print("#frames", len(valid_frames))
@@ -110,18 +113,75 @@ else:
 # C A M E R A S
 # ~~~~~~~~~~~~~
 print('\n[load cameras]')
-Calib = []  # { n_frames x n_cameras }
-for t in tqdm(valid_frames):
-    calib = []
-    Calib.append(calib)
+try:
+    Calib = []  # { n_frames x n_cameras }
+    for t in tqdm(valid_frames):
+        calib = []
+        Calib.append(calib)
 
-    for cid in range(n_cameras):
-        local_camdir = join(cam_dir, 'camera%02d' % cid)
-        assert isdir(local_camdir)
-        cam_fname = join(local_camdir, 'frame%09d.json' % t)
-        assert isfile(cam_fname), cam_fname
-        cam = camera.Camera.load_from_file(cam_fname)
-        calib.append(cam)
+        for cid in range(n_cameras):
+            local_camdir = join(cam_dir, 'camera%02d' % cid)
+            assert isdir(local_camdir)
+            cam_fname = join(local_camdir, 'frame%09d.json' % t)
+            assert isfile(cam_fname), cam_fname
+            cam = camera.Camera.load_from_file(cam_fname)
+            calib.append(cam)
+except AssertionError:
+    print('\tnew version of cameras is used...')
+    class CamerasPerFrame:
+
+        def __init__(self, cam_dir, n_cameras, valid_frames):
+            self.n_cameras = n_cameras
+            self.n_frames = len(valid_frames)
+            self.first_frame = valid_frames[0]
+            self.cameras = []
+            for cid in range(n_cameras):
+                camfile = join(cam_dir, 'camera%02d.json' % cid)
+                with open(camfile, 'r') as f:
+                    cam_as_dict_list = json.load(f)
+
+                cam_as_object_list = []
+                for cam in cam_as_dict_list:
+                    start_frame = cam['start_frame']
+                    end_frame = cam['end_frame']
+                    K = np.array(cam['K'])
+                    rvec = np.array(cam['rvec'])
+                    tvec = np.array(cam['tvec'])
+                    distCoef = np.array(cam['distCoef'])
+                    w = int(cam['w'])
+                    h = int(cam['h'])
+                    cam = camera.ProjectiveCamera(K, rvec, tvec, distCoef, w, h)
+
+                    cam_as_object_list.append({
+                        "start_frame": start_frame,
+                        "end_frame": end_frame,
+                        "cam": cam
+                    })
+
+                self.cameras.append(cam_as_object_list)
+
+        def __getitem__(self, frame):
+            """
+            :param frame: frame, starting at 0!
+            """
+            frame += self.first_frame
+
+            cameras = [1] * self.n_cameras
+            for cid, cam_as_object_list in enumerate(self.cameras):
+                for cam in cam_as_object_list:
+                    start_frame = cam['start_frame']
+                    end_frame = cam['end_frame']
+                    if start_frame <= frame <= end_frame:
+                        cameras[cid] = cam['cam']
+                        break
+            for cam in cameras:
+                assert cam != 1
+            return cameras
+
+        def __len__(self):
+            return self.n_frames
+
+    Calib = CamerasPerFrame(cam_dir, n_cameras, valid_frames)
 
 # ====================================
 # ~~~~ PLOT FRAMES ~~~~
@@ -166,8 +226,9 @@ for i, frame in tqdm(enumerate(valid_frames)):
     for camnbr, cid in enumerate(cameras):
 
         camera_img_dir = join(vid_dir, 'camera%02d' % cid)
-        img_file = join(camera_img_dir, 'frame%09d.png' % frame)
-        assert isfile(img_file)
+        # img_file = join(camera_img_dir, 'frame%09d.png' % frame)
+        img_file = join(camera_img_dir, ('frame%09d.' % frame) + img_file_type)
+        assert isfile(img_file), img_file
         im = cv2.cvtColor(cv2.imread(img_file), cv2.COLOR_BGR2RGB)
         h, w, _ = im.shape
 
