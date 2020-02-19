@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-nvidia-docker run\
+docker run\
+    --gpus all\
     --privileged\
     --name='mv3dpose_run'\
     --rm\

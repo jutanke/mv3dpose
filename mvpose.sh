@@ -36,7 +36,23 @@ else
     echo "2D poses already estimated"
 fi
 
-nvidia-docker run\
+
+DOCKER_VERSION=$(docker version --format '{{.Server.Version}}')
+echo "docker: $DOCKER_VERSION"
+
+if [[ $DOCKER_VERSION == 19* ]]; then
+  docker run\
+      --gpus all\
+      --privileged\
+      --name='mv3dpose_exec'\
+      --rm\
+      -it\
+      -v "$PWD":/home/user/mv3dpose:ro\
+      -v "$1":/home/user/dataset\
+      jutanke/mv3dpose\
+      /bin/bash exec.sh
+else
+  nvidia-docker run\
     --privileged\
     --name='mv3dpose_exec'\
     --rm\
@@ -45,3 +61,4 @@ nvidia-docker run\
     -v "$1":/home/user/dataset\
     jutanke/mv3dpose\
     /bin/bash exec.sh
+  fi

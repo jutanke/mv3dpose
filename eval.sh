@@ -29,7 +29,8 @@ if [[ ! -d "$TR_DIR" ]]; then
     exit 1
 fi
 
-nvidia-docker run\
+docker run\
+    --gpus all\
     --privileged\
     --rm\
     -it\

@@ -45,7 +45,7 @@ RUN apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
 RUN curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh &&\
     bash Miniconda3-latest-Linux-x86_64.sh -b -p /opt/miniconda3
 
-RUN conda install python==3.6
+#RUN conda install python==3.6?
 RUN conda install -y numpy \
     conda \
     anaconda-client \
@@ -92,7 +92,37 @@ RUN conda install -y numpy \
     scipy \
     tqdm
 
-RUN conda install -y -c menpo opencv3 && conda update conda && conda update --all
+RUN conda update conda && conda update --all
+
+RUN apt-get install -y python3-dev libgoogle-glog-dev libgflags-dev libprotobuf-dev protobuf-compiler\
+    libgoogle-glog-dev libgflags-dev\
+    libgphoto2-dev libeigen3-dev libhdf5-dev doxygen\
+    x264 v4l-utils libavresample-dev\
+    libopencore-amrnb-dev libopencore-amrwb-dev\
+    libvorbis-dev libxvidcore-dev\
+    libfaac-dev libmp3lame-dev libtheora-dev\
+    libatlas-base-dev libgtk2.0-dev libtbb-dev qt5-default\
+    libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+
+RUN apt-get install -y libxine2-dev libv4l-dev\
+    libavcodec-dev libavformat-dev libswscale-dev libdc1394-22-dev\
+    libtiff-dev libjasper1 libjpeg8-dev libpng-dev\
+    git gfortran build-essential checkinstall cmake pkg-config yasm
+
+RUN git clone https://github.com/opencv/opencv.git && cd opencv && git checkout 4.2.0
+RUN cd opencv && mkdir build && cd build && cmake -D CMAKE_BUILD_TYPE=RELEASE \
+    -D CMAKE_INSTALL_PREFIX=$(python -c "import sys; print(sys.prefix)") \
+    -D ENABLE_FAST_MATH=ON \
+    -D INSTALL_PYTHON_EXAMPLES=ON \
+    -D INSTALL_C_EXAMPLES=OFF \
+    -D OPENCV_ENABLE_NONFREE=ON \
+    -D CMAKE_INSTALL_PREFIX=$(python -c "import sys; print(sys.prefix)") \
+    -D PYTHON_EXECUTABLE=$(which python) \
+    -D PYTHON_INCLUDE_DIR=$(python -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") \
+    -D PYTHON_PACKAGES_PATH=$(python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())") \
+    -D BUILD_EXAMPLES=ON ..
+
+RUN cd opencv && cd build && make -j20 && make install
 
 RUN echo "0.0.2"
 COPY exec.sh /exec.sh
