@@ -2,7 +2,8 @@ import sys
 sys.path.insert(0, '../')
 import preprocessing.shelf as shelf
 import preprocessing.kth2_football as kth
-import preprocessing.umpm as umpm
+# import preprocessing.umpm as umpm
+import preprocessing.campus as campus
 from os.path import isdir, join
 from os import makedirs
 import shutil
@@ -11,14 +12,22 @@ import numpy as np
 from tqdm import tqdm
 import json
 
-root = "/home/tanke/Data/datasets"
+root = "/mnt/cephfs/datasets"
 assert isdir(root)
+
+# ~~~~~ Campus ~~~~~
+get = campus.get
+output_dir = './../output/campus'
+data_root = join(root, 'campus')
+scale_to_mm = 1000
+valid_frames = list(range(350, 470)) + list(range(650, 750))
 
 # ~~~~~ SHELF ~~~~~
 # get = shelf.get
 # valid_frames = list(range(300, 600))
 # output_dir = './../output/shelf'
-# data_root = join(root, 'pak')
+# # data_root = join(root, 'pak')
+# data_root = root
 # scale_to_mm = 1000
 
 # ~~~~~ KTH2 Football ~~~~~
@@ -30,11 +39,11 @@ assert isdir(root)
 # ~~~~~~~~~~~~~~~~~
 
 # ~~~~~ KTH2 Football ~~~~~
-get = umpm.get
-valid_frames = list(range(0, 1000, 2))
-output_dir = './../output/umpm'
-data_root = root
-scale_to_mm = 1
+# get = umpm.get
+# valid_frames = list(range(0, 1000, 2))
+# output_dir = './../output/umpm'
+# data_root = root
+# scale_to_mm = 1
 # ~~~~~~~~~~~~~~~~~
 
 if isdir(output_dir):

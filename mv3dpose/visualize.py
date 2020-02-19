@@ -62,22 +62,49 @@ def get_cmap(n, name='hsv'):
 # colors = get_cmap(len(tracks))
 n_tracks = len(tracks)
 if n_tracks > 11:
-    colors = np.random.random(size=(n_tracks, 1, 3))
+    # colors = np.random.random(size=(n_tracks, 1, 3))
+    colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+    # colors = [
+    #     'tab:blue',
+    #     'tab:orange',
+    #     'tab:green',
+    #     'tab:red',
+    #     'tab:purple',
+    #     'red',
+    #     'blue',
+    #     'green',
+    #     'navy',
+    #     'maroon',
+    #     'darkgreen'
+    # ]
 else:
     colors = [
-            'red',     # 0
-            'blue',  # 1
-            'green',    # 2
-            'yellow',   # 3
-            'green',      # 4
-            'blue',   # 5
-            'white',    # 6
-            'hotpink',  # 7
-            'magenta',     # 8
-            'lime',     # 9
-            'peru'      # 10
-        ][:n_tracks]
-
+        'tab:blue',
+        'tab:orange',
+        'tab:green',
+        'tab:red',
+        'tab:purple',
+        'red',
+        'blue',
+        'green',
+        'navy',
+        'maroon',
+        'darkgreen'
+    ]
+    # colors = [
+    #         'red',     # 0
+    #         'blue',  # 1
+    #         'green',    # 2
+    #         'yellow',   # 3
+    #         'green',      # 4
+    #         'blue',   # 5
+    #         'white',    # 6
+    #         'hotpink',  # 7
+    #         'magenta',     # 8
+    #         'lime',     # 9
+    #         'peru'      # 10
+    #     ][:n_tracks]
+    # colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
 # ~~~~~~~~~~~~~
 # C A M E R A S
@@ -123,6 +150,12 @@ def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
 
 for i, frame in tqdm(enumerate(valid_frames)):
 
+    if True:
+        cameras = [1, 2, 5]
+        n_cameras = len(cameras)
+    else:
+        cameras = range(n_cameras)
+
     fig = plt.figure(figsize=(16, 12))
     H = 2 if n_cameras < 8 else 3
     W = int(math.ceil(n_cameras / H))
@@ -130,7 +163,7 @@ for i, frame in tqdm(enumerate(valid_frames)):
 
     tracks_on_frame = tracks_by_frame[frame]
 
-    for cid in range(n_cameras):
+    for camnbr, cid in enumerate(cameras):
 
         camera_img_dir = join(vid_dir, 'camera%02d' % cid)
         img_file = join(camera_img_dir, 'frame%09d.png' % frame)
@@ -139,14 +172,14 @@ for i, frame in tqdm(enumerate(valid_frames)):
         h, w, _ = im.shape
 
         cam = Calib[i][cid]
-        ax = fig.add_subplot(H, W, cid+1)
+        ax = fig.add_subplot(H, W, camnbr+1)
         ax.axis('off')
         ax.set_xlim([0, w])
         ax.set_ylim([h, 0])
         ax.imshow(im)
 
         for tid in tracks_on_frame:
-            color = colors[tid]
+            color = colors[tid%len(colors)]
             pose3d = pose_by_track_and_frame[tid, frame]
 
             # we need to mask over None
@@ -167,50 +200,53 @@ for i, frame in tqdm(enumerate(valid_frames)):
             for jid in range(24):
                 if mask[jid]:
                     x, y = pose2d[jid]
-                    ax.scatter(x, y, c=color)
+                    ax.scatter(x, y, color=color)
 
             for a, b in LIMBS:
                 if mask[a] and mask[b]:
                     x1, y1 = pose2d[a]
                     x2, y2 = pose2d[b]
                     if n_tracks > 11:
-                        ax.plot([x1, x2], [y1, y2], c=np.squeeze(color))
+                        # ax.plot([x1, x2], [y1, y2], c=np.squeeze(color))
+                        ax.plot([x1, x2], [y1, y2], color=color)
                     else:
-                        ax.plot([x1, x2], [y1, y2], c=color)
+                        ax.plot([x1, x2], [y1, y2], color=color)
 
     # 3D plot ================
-    ax = fig.add_subplot(H, W, n_cameras + 1, projection='3d')
-    # ax.axis('off')
-    ax.set_xlim([-0.5, 1.5])
-    ax.set_ylim([-1, 1])
-    ax.set_zlim([0, 2])
+    if True:  # no 3D plot pls
+        ax = fig.add_subplot(H, W, n_cameras + 1, projection='3d')
+        # ax.axis('off')
+        ax.set_xlim([0, 5])
+        ax.set_ylim([0, 5])
+        ax.set_zlim([0, 3.5])
 
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
 
-    for tid in tracks_on_frame:
-        color = colors[tid]
-        pose3d = pose_by_track_and_frame[tid, frame]
+        for tid in tracks_on_frame:
+            color = colors[tid%len(colors)]
+            pose3d = pose_by_track_and_frame[tid, frame]
 
-        mask = [True] * 24
-        for jid in range(24):
-            if pose3d[jid] is None:
-                mask[jid] = False
-            else:
-                x, y, z = pose3d[jid]
-                if np.isclose(x, .0) and np.isclose(y, .0) and np.isclose(z, .0):
+            mask = [True] * 24
+            for jid in range(24):
+                if pose3d[jid] is None:
                     mask[jid] = False
                 else:
-                    ax.scatter(x, y, z, c=color)
+                    x, y, z = pose3d[jid]
+                    if np.isclose(x, .0) and np.isclose(y, .0) and np.isclose(z, .0):
+                        mask[jid] = False
+                    else:
+                        ax.scatter(x, y, z, color=color)
 
-        for a, b in LIMBS:
-            if mask[a] and mask[b]:
-                x1, y1, z1 = pose3d[a]
-                x2, y2, z2 = pose3d[b]
-                if n_tracks > 11:
-                    ax.plot([x1, x2], [y1, y2], [z1, z2], c=np.squeeze(color), linewidth=4)
-                else:
-                    ax.plot([x1, x2], [y1, y2], [z1, z2], c=color, linewidth=4)
+            for a, b in LIMBS:
+                if mask[a] and mask[b]:
+                    x1, y1, z1 = pose3d[a]
+                    x2, y2, z2 = pose3d[b]
+                    if n_tracks > 11:
+                        # ax.plot([x1, x2], [y1, y2], [z1, z2], c=np.squeeze(color), linewidth=4)
+                        ax.plot([x1, x2], [y1, y2], [z1, z2], color=color, linewidth=4)
+                    else:
+                        ax.plot([x1, x2], [y1, y2], [z1, z2], color=color, linewidth=4)
 
         # for jid in range(24):
         #     if mask[jid]:
