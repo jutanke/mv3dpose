@@ -13,7 +13,8 @@ if [ ! -d "$TRK_DIR" ]; then
   exit 1
 fi
 
-nvidia-docker run\
+docker run\
+    --gpus all\
     --privileged\
     --name='mv3dpose_vis'\
     --rm\
