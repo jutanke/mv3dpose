@@ -3,6 +3,17 @@ Off-the-shelf [Multiple Person Multiple View 3D Pose Estimation](http://pages.ia
 
 ![out](https://user-images.githubusercontent.com/831215/58240723-db7e0880-7d4b-11e9-955d-24ac7e0f44c4.gif)
 
+## Cite
+If this repository is useful for you, please cite:
+```
+@inproceedings{tanke2019iterative,
+  title={Iterative Greedy Matching for 3D Human Pose Tracking from Multiple Views},
+  author={Tanke, Julian and Gall, Juergen},
+  booktitle={German Conference on Pattern Recognition},
+  year={2019}
+}
+```
+
 ## Abstract
 In this work we propose an approach for estimating 3D human poses of multiple people
 from a set of calibrated cameras. Estimating 3D human poses from 
