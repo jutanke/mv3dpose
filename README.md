@@ -4,7 +4,7 @@ Off-the-shelf [Multiple Person Multiple View 3D Pose Estimation](http://pages.ia
 ![out](https://user-images.githubusercontent.com/831215/58240723-db7e0880-7d4b-11e9-955d-24ac7e0f44c4.gif)
 
 ## Cite
-If this repository is useful for you, please cite:
+If this repository is useful to you, please cite:
 ```
 @inproceedings{tanke2019iterative,
   title={Iterative Greedy Matching for 3D Human Pose Tracking from Multiple Views},
