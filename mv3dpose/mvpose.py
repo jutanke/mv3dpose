@@ -1,6 +1,6 @@
 import sys
 sys.path.insert(0, '../')
-from mv3dpose.data.openpose import OpenPoseKeypoints, MultiOpenPoseKeypoints
+from mv3dpose.data.openpose import OpenPoseKeypoints, MultiOpenPoseKeypoints, AndreasKeypoints
 from mv3dpose.tracking import tracking, Track
 import mv3dpose.geometry.camera as camera
 from os.path import isdir, join, isfile
@@ -18,6 +18,8 @@ dataset_json = join(dataset_dir, 'dataset.json')
 vid_dir = join(dataset_dir, 'videos')
 cam_dir = join(dataset_dir, 'cameras')
 kyp_dir = join(dataset_dir, 'poses')
+
+USE_OPENPOSE = False
 
 assert isdir(vid_dir)
 assert isdir(cam_dir)
@@ -78,7 +80,10 @@ keypoints = []
 for cid in tqdm(range(n_cameras)):
     loc = join(kyp_dir, 'camera%02d' % cid)
     assert isdir(loc), loc
-    pe = OpenPoseKeypoints('frame%09d', loc)
+    if USE_OPENPOSE:
+        pe = OpenPoseKeypoints('frame%09d', loc)
+    else:
+        pe = AndreasKeypoints('frame%09d', loc)
     keypoints.append(pe)
 pe = MultiOpenPoseKeypoints(keypoints)
 

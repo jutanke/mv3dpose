@@ -191,13 +191,21 @@ if isdir(output_dir):
     shutil.rmtree(output_dir)
 
 
+# LIMBS = [
+#     (0, 1), (0, 15), (0, 14), (15, 17), (14, 16),
+#     (1, 2), (2, 3), (3, 4),
+#     (1, 5), (5, 6), (6, 7),
+#     (2, 8), (5, 11), (8, 11),
+#     (8, 9), (9, 10), (10, 21), (21, 22), (22, 23),
+#     (11, 12), (12, 13), (13, 18), (18, 19), (19, 20)
+# ]
 LIMBS = [
     (0, 1), (0, 15), (0, 14), (15, 17), (14, 16),
     (1, 2), (2, 3), (3, 4),
     (1, 5), (5, 6), (6, 7),
     (2, 8), (5, 11), (8, 11),
-    (8, 9), (9, 10), (10, 21), (21, 22), (22, 23),
-    (11, 12), (12, 13), (13, 18), (18, 19), (19, 20)
+    (8, 9), (9, 10),
+    (11, 12), (12, 13)
 ]
 
 
@@ -210,7 +218,7 @@ def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
 
 for i, frame in tqdm(enumerate(valid_frames)):
 
-    if True:
+    if False:
         cameras = [1, 2, 5]
         n_cameras = len(cameras)
     else:
@@ -244,9 +252,9 @@ for i, frame in tqdm(enumerate(valid_frames)):
             pose3d = pose_by_track_and_frame[tid, frame]
 
             # we need to mask over None
-            assert len(pose3d) == 24
-            mask = [True] * 24
-            for jid in range(24):
+            assert len(pose3d) == 18
+            mask = [True] * 18
+            for jid in range(18):
                 if pose3d[jid] is None:
                     pose3d[jid] = [0, 0, 0]
                     mask[jid] = False
@@ -258,7 +266,7 @@ for i, frame in tqdm(enumerate(valid_frames)):
             pose3d = np.array(pose3d, dtype=np.float32)
 
             pose2d = cam.projectPoints(pose3d)
-            for jid in range(24):
+            for jid in range(18):
                 if mask[jid]:
                     x, y = pose2d[jid]
                     ax.scatter(x, y, color=color)
@@ -288,8 +296,8 @@ for i, frame in tqdm(enumerate(valid_frames)):
             color = colors[tid%len(colors)]
             pose3d = pose_by_track_and_frame[tid, frame]
 
-            mask = [True] * 24
-            for jid in range(24):
+            mask = [True] * 18
+            for jid in range(18):
                 if pose3d[jid] is None:
                     mask[jid] = False
                 else:

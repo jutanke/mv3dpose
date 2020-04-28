@@ -297,8 +297,11 @@ class Person2d:
         :param person: {Person2d}
         :return:
         """
-        left  = [5, 6, 7, 11, 12, 13, 15, 17, 18, 19, 20]
-        right = [2, 3, 4,  8,  9, 10, 14, 16, 21, 22, 23]
+        #left  = [5, 6, 7, 11, 12, 13, 15, 17, 18, 19, 20]
+        #right = [2, 3, 4,  8,  9, 10, 14, 16, 21, 22, 23]
+        left  = [5, 6, 7, 11, 12, 13, 15, 17]
+        right = [2, 3, 4,  8,  9, 10, 14, 16]
+        
         lr = left + right
         rl = right + left
 
@@ -338,7 +341,7 @@ class Person2d:
             # ~~~~~~~~~~~~~~~~~~~~
 
     def __len__(self):
-        return 24
+        return 18
 
     def triangulate(self, other):
         """
