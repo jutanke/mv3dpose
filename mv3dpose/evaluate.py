@@ -134,7 +134,7 @@ def transform3d_from_mscoco(humans):
 
 
 def proper_pcp_calc(Y, Humans):
-    alpha = 0.5
+    alpha = 0.3
     L_Arms = []
     U_Arms = []
     L_Legs = []

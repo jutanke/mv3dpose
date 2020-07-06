@@ -62,6 +62,12 @@ smoothing_interpolation_range = get_optional(
 do_smoothing = get_optional(
     'do_smoothing', True
 )
+naming = get_optional(
+    'naming', 'frame%09d'
+)
+scale_pose = get_optional(
+    'scale_pose', 1.0
+)
 
 if 'valid_frames' in Settings:
     valid_frames = Settings['valid_frames']
@@ -81,9 +87,9 @@ for cid in tqdm(range(n_cameras)):
     loc = join(kyp_dir, 'camera%02d' % cid)
     assert isdir(loc), loc
     if USE_OPENPOSE:
-        pe = OpenPoseKeypoints('frame%09d', loc)
+        pe = OpenPoseKeypoints(naming, loc)
     else:
-        pe = AndreasKeypoints('frame%09d', loc)
+        pe = AndreasKeypoints(naming, loc, scale_pose)
     keypoints.append(pe)
 pe = MultiOpenPoseKeypoints(keypoints)
 
@@ -117,19 +123,20 @@ except AssertionError:
                 camfile = join(cam_dir, 'camera%02d.json' % cid)
                 with open(camfile, 'r') as f:
                     cam_as_dict_list = json.load(f)
+                if not isinstance(cam_as_dict_list, list):
+                    cam_as_dict_list = [cam_as_dict_list]
 
                 cam_as_object_list = []
                 for cam in cam_as_dict_list:
                     start_frame = cam['start_frame']
                     end_frame = cam['end_frame']
-                    K = np.array(cam['K'])
+                    K = np.array(cam['K']).reshape((3, 3))
                     rvec = np.array(cam['rvec'])
                     tvec = np.array(cam['tvec'])
                     distCoef = np.array(cam['distCoef'])
                     w = int(cam['w'])
                     h = int(cam['h'])
                     cam = camera.ProjectiveCamera(K, rvec, tvec, distCoef, w, h)
-
                     cam_as_object_list.append({
                         "start_frame": start_frame,
                         "end_frame": end_frame,

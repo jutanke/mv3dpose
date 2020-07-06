@@ -71,7 +71,7 @@ def estimate(calib, poses,
     """
     n_cameras = len(calib)
     assert n_cameras == len(poses)
-    assert n_cameras >= 3, 'Expect multi-camera setup'
+    #assert n_cameras >= 3, 'Expect multi-camera setup'
 
     # ~~~~~~~~~~~~~~~~~~~~~
     # cleanup

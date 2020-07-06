@@ -25,10 +25,11 @@ class MultiOpenPoseKeypoints:
 
 class AndreasKeypoints:
 
-    def __init__(self, naming, loc):
+    def __init__(self, naming, loc, scale_pose=1.0):
         """
         """
         assert isdir(loc), loc
+        self.scale_pose = scale_pose
         self.loc = loc
         self.naming = naming
     
@@ -106,6 +107,8 @@ class OpenPoseKeypoints:
             our_person = np.empty((J, 3), np.float32)
             kps = np.reshape(person['pose_keypoints_2d'], (-1, 3))
             our_person[OUR] = kps[OP]
+
+            our_peron[:, 0:2] *= self.scale_pose
 
             for i, (x, y, v) in enumerate(our_person):
                 if v < 0.001:
